@@ -1,108 +1,101 @@
 # Newspaper Opinion & Editorial Extractor
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+## Overview
 
-This project automatically identifies and extracts opinion/editorial pages from a collection of English-language newspapers in PDF format. It uses a combination of Optical Character Recognition (OCR) and a sophisticated Natural Language Processing (NLP) model to understand the content's meaning, consolidating all relevant pages into a single, final PDF.
+This project is a streamlined and efficient pipeline designed to automate the process of identifying, extracting, and consolidating Opinion/Editorial sections from a collection of English-language newspapers in PDF format.
 
-## ✨ Features
+It uses a direct and reliable **header analysis technique**, focusing on explicit section titles to ensure high accuracy. The system is built to handle both text-based and image-based (scanned) PDFs, making it a robust solution for diverse document sources.
 
--   **Intelligent Page Identification:** Moves beyond simple keyword matching by using a Hugging Face NLP model to analyze the semantic content and style of the text.
--   **Robust Text Extraction:** Handles both digitally native and scanned (image-based) PDFs by seamlessly falling back to an OCR engine (`Tesseract`).
--   **Automated Consolidation:** Merges all identified opinion/editorial pages from multiple newspaper files into one convenient PDF document.
--   **Environment-Agnostic:** Encapsulated in a Docker environment, ensuring it runs identically on any machine without complex setup.
+---
 
-## ⚙️ How It Works (Architecture Overview)
+## Features
 
-The system operates as a multi-stage filtration pipeline to ensure both accuracy and efficiency:
+-   **Targeted Header Analysis**: Focuses on identifying explicit section titles (e.g., "Opinion," "Editorial," "Views") typically found at the top of a page for highly accurate detection.
+-   **High Accuracy & Reliability**: By targeting official section headers, the system avoids the ambiguity of analyzing full article text, leading to fewer false positives and more reliable results.
+-   **Efficient & Lightweight**: The removal of large machine learning models results in significantly faster processing times and a smaller, simpler installation footprint.
+-   **Robust PDF Processing (OCR)**: Natively handles both digitally created and scanned PDFs through an integrated Optical Character Recognition (OCR) engine.
+-   **Consolidated Output**: Merges all identified opinion/editorial pages from multiple newspapers into a single, clean PDF file for easy reading and analysis.
 
-1.  **PDF Parsing & Text Extraction:** Each PDF page is processed. The system first attempts a fast, direct text extraction. If that fails or yields minimal text (indicating a scanned page), it automatically converts the page to an image and uses OCR to extract the text.
+---
 
-2.  **Heuristic Filtering:** A quick scan is performed on the extracted text for common opinion/editorial keywords (e.g., "opinion," "letters," "views"). This creates a list of potential candidates, efficiently filtering out obviously irrelevant pages like sports or advertisements.
+## Getting Started
 
-3.  **ML-Powered Semantic Analysis:** Each candidate page is then analyzed by a pre-trained Natural Language Processing model. This model reads the text and determines if its content and tone align with "opinion and commentary" or "factual news reporting." This is the core step that ensures high accuracy.
-
-4.  **Consolidation:** Pages that are successfully confirmed by the ML model are collected. Once all newspapers have been processed, these pages are merged in order into a single output PDF.
-
-## 🚀 Getting Started
-
-Follow these steps to set up and run the project. The only prerequisite is a working installation of Docker.
+Follow these instructions to set up and run the project on your local machine.
 
 ### Prerequisites
 
--   [Docker Desktop](https://www.docker.com/products/docker-desktop/) installed and running on your system.
+Before you begin, ensure you have the following installed on your system:
 
-### Installation & Execution
+1.  **Python 3.8+**: [Download Python](https://www.python.org/downloads/)
+2.  **Tesseract OCR Engine**: This is a crucial dependency for processing scanned PDFs.
+    -   **Windows**: Download and run the installer from the [Tesseract at UB Mannheim](https://github.com/UB-Mannheim/tesseract/wiki) page. **Important:** Make sure to add the Tesseract installation directory to your system's `PATH` environment variable.
+    -   **macOS**: `brew install tesseract`
+    -   **Linux (Debian/Ubuntu)**: `sudo apt-get update && sudo apt-get install tesseract-ocr`
 
-**1. Clone the Repository**
+3.  **Poppler**: This is a PDF rendering library required for converting PDF pages to images for OCR.
+    -   **Windows**: Download the latest binary from [this link](https://github.com/oschwartz10612/poppler-windows/releases/), extract it, and add its `bin` folder to your system's `PATH`.
+    -   **macOS**: `brew install poppler`
+    -   **Linux (Debian/Ubuntu)**: `sudo apt-get install poppler-utils`
 
-```bash
-git clone https://github.com/your-username/your-repository-name.git
-cd your-repository-name
-```
+### Installation
 
-**2. Prepare Your Input Files**
-
-Place all the newspaper PDF files you want to process inside the `newspapers` directory. The project structure should look like this:
-
-```
-.
-├── newspapers/
-│   ├── newspaper_A.pdf
-│   ├── newspaper_B.pdf
-│   └── ...
-├── Dockerfile
-├── main_orchestrator.py
-└── ... (other python scripts)
-```
-
-**3. Build the Application Environment**
-
-This command uses the `Dockerfile` to build a self-contained environment with all the necessary dependencies and tools. This may take several minutes on the first run as it downloads the required components.
-
-```bash
-docker build -t newspaper-processor .
-```
-
-**4. Run the Extraction Process**
-
-Execute the following command to start the application. This will process all PDFs in the `newspapers` folder and generate the output file in your project directory.
-
-*   **For macOS and Linux:**
+1.  **Clone the Repository**:
     ```bash
-    docker run --rm -v "$(pwd)":/app newspaper-processor
+    git clone https://github.com/your-username/newspaper-extractor.git
+    cd newspaper-extractor
     ```
 
-*   **For Windows (PowerShell):**
+2.  **Create a Virtual Environment** (Recommended):
     ```bash
-    docker run --rm -v "${PWD}:/app" newspaper-processor
+    python -m venv venv
+    source venv/bin/activate  # On Windows, use `venv\Scripts\activate`
     ```
-*   **For Windows (Command Prompt):**
+
+3.  **Create and Install Dependencies**:
+    Create a `requirements.txt` file with the following content:
+    ```txt
+    # requirements.txt
+    PyPDF2
+    opencv-python-headless
+    pytesseract
+    Pillow
+    pdf2image
+    ```
+    Then, install the packages using pip:
     ```bash
-    docker run --rm -v "%cd%":/app newspaper-processor
+    pip install -r requirements.txt
     ```
-This command links your current directory to the application's working directory inside the container, allowing it to read your input files and write the output back to your machine.
 
-### Output
+---
 
-After the script finishes, a new file named `consolidated_opinion_editorial.pdf` will appear in the root of your project directory.
+## How to Run
 
-## 🛠️ Configuration
+1.  **Place Your PDFs**: Create a directory named `newspapers` in the root of the project folder. Place all the newspaper PDF files you want to process inside this directory.
 
-The behavior of the ML model can be fine-tuned by modifying the parameters in `ml_classifier.py`:
+    ```
+    newspaper-extractor/
+    ├── newspapers/
+    │   ├── newspaper_A.pdf
+    │   ├── newspaper_B.pdf
+    │   └── ...
+    ├── ... (other project files)
+    ```
 
--   **`model_name`**: You can experiment with other zero-shot classification models from the Hugging Face Hub.
--   **`threshold`**: Adjust the confidence threshold (from `0.0` to `1.0`) to make the classifier more or less strict.
+2.  **Execute the Main Script**:
+    Run the orchestrator script from the project's root directory:
+    ```bash
+    python main_orchestrator.py
+    ```
 
-After making changes, remember to rebuild the Docker image using the `docker build` command.
+3.  **Check the Output**:
+    The script will process all the files, displaying its progress in the terminal. Once completed, a new file named `consolidated_opinion_editorial.pdf` will be generated in the project's root directory.
 
-## 💻 Technology Stack
+---
 
--   **Backend:** Python
--   **PDF Handling:** PyPDF2, Poppler, pdf2image
--   **OCR:** Tesseract OCR Engine
--   **NLP/ML:** Hugging Face Transformers (PyTorch backend)
--   **Containerization:** Docker
+## Contributing
 
-## 📜 License
+Contributions are welcome! If you have suggestions for improvements or find any issues, please feel free to open an issue or submit a pull request.
 
-This project is licensed under the MIT License. See the `LICENSE` file for details."# Newspaper-Opinion-Editorial-Extractor" 
+## License
+
+This project is licensed under the MIT License. See the `LICENSE` file for details.
