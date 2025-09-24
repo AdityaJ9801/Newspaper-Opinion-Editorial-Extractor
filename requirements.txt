@@ -1,0 +1,8 @@
+
+PyPDF2
+transformers
+torch
+opencv-python
+pytesseract
+Pillow
+pdf2image
