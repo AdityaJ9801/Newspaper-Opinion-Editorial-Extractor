@@ -41,7 +41,7 @@ Before you begin, ensure you have the following installed on your system:
 
 1.  **Clone the Repository**:
     ```bash
-    git clone https://github.com/your-username/newspaper-extractor.git
+    git clone https://github.com/AdityaJ9801/Newspaper-Opinion-Editorial-Extractor.git
     cd newspaper-extractor
     ```
 
